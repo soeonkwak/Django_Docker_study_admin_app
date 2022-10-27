@@ -1,0 +1,26 @@
+#여러 이미지들을 실행하는 방법 (백엔드, DB, 등 각각을 이미지로 만들어서 각각 도커 컨테이너에 올림)
+version: '3.8'
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 8000:8000 #앞은 로컬 호스트 포드 / 뒤는 도커 파일 포트
+    volumes:
+      - .:/app #로컬 프로젝트 파일(.)과 도커파일?이 서로 수정이 되어도 서로 반영이 됨.
+    depends_on: #아래 DB 설정이 먼저 실행 --> services 실행
+      - db
+
+  db:
+    image: mysql:5.7.22
+    restart: always #db가 멈추면 앱이랑 도커 컨테이너도 멈추는데 재시작 할 수 있는 설정
+    environment: #백엔드와 연결 하기 위한 설정
+      MYSQL_DATABASE: admin
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+      MYSQL_ROOT_PASSWORD: root
+    volumes:
+      - .dbdata:/var/lib/mysql #db데이터가 여기에 반영됨?
+    ports:
+      - 33066:3306
